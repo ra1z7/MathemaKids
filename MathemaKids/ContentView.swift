@@ -37,6 +37,9 @@ struct ContentView: View {
     @State private var allQuestions = [QuestionAnswer]()
     @State private var currentQuestionNumber = 0
     
+    @State private var alertTitle = ""
+    @State private var isShowingAlert = false
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -97,6 +100,19 @@ struct ContentView: View {
                             }
                         }
                     }
+                    .alert(alertTitle, isPresented: $isShowingAlert) {
+                        Button(currentQuestionNumber < (questionsToAsk - 1) ? "Next" : "Back") {
+                            withAnimation {
+                                if currentQuestionNumber < (questionsToAsk - 1) {
+                                    currentQuestionNumber += 1
+                                } else {
+                                    isConfiguringGame = true
+                                }
+                                
+                                userAnswer = ""
+                            }
+                        }
+                    }
                 }
             }
             .navigationTitle("MathemaKids")
@@ -104,19 +120,18 @@ struct ContentView: View {
     }
     
     func checkAnswer() {
-        withAnimation {
-            if Int(userAnswer) == allQuestions[currentQuestionNumber].answer {
-                userScore += 1
-            }
-            
-            if currentQuestionNumber != (questionsToAsk - 1) {
-                currentQuestionNumber += 1
-            } else {
-                isConfiguringGame = true
-            }
-            
-            userAnswer = ""
+        if Int(userAnswer) == allQuestions[currentQuestionNumber].answer {
+            userScore += 1
+            alertTitle = "Correct!"
+        } else {
+            alertTitle = "Oops, wrong..."
         }
+        
+        if currentQuestionNumber == (questionsToAsk - 1) {
+            alertTitle = "Final Score: \(userScore)/\(questionsToAsk)"
+        }
+        
+        isShowingAlert = true
     }
 }
 
